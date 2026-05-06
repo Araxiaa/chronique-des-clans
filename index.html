@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chroniques des Clans — Frise Chronologique</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Crimson+Pro:wght@400;600&family=DM+Sans:wght@300;400&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div id="char-modal" class="modal-hidden">
+        <div class="modal-content">
+            <button id="close-char" class="det-close">✕</button>
+            <div id="char-content"></div>
+        </div>
+    </div>
+
+    <div id="events-modal" class="modal-hidden">
+        <div class="modal-content">
+            <button id="close-events" class="det-close">✕ Fermer</button>
+            <h2 class="archive-title">Archives des Événements</h2>
+            <div id="archive-list"></div>
+        </div>
+    </div>
+
+    <header>
+        <p class="header-deco">⸻ Chroniques des Clans ⸻</p>
+        <h1>Frise Chronologique</h1>
+
+        <div class="header-tools">
+            <button id="btn-legend" class="tool-btn">❓ Légende</button>
+            <button id="btn-pantheon" class="tool-btn">🏆 Panthéon</button>
+            <button id="btn-updates" class="tool-btn">🔄 Mises à jour</button>
+            <button id="btn-events" class="tool-btn">📜 Archives</button>
+            <button id="btn-credits" class="tool-btn">🤝 Crédits</button>
+        </div>
+        
+        <div class="search-container">
+            <input type="text" id="cat-search" placeholder="Rechercher un chat...">
+        </div>
+
+        <div id="legend-modal" class="modal-hidden">
+            <div class="modal-content">
+                <button class="det-close">✕</button>
+                <h2 style="font-family:'Cinzel'; color:var(--gold);">Légende de la Frise</h2>
+                <div class="legend-grid">
+                    <div class="leg-item"><span class="box-vent"></span> Clan du Vent</div>
+                    <div class="leg-item"><span class="box-tonnerre"></span> Clan du Tonnerre</div>
+                    <div class="leg-item"><span class="box-ombre"></span> Clan de l'Ombre</div>
+                    <div class="leg-item"><span class="box-riviere"></span> Clan de la Rivière</div>
+                    <hr>
+                    <div class="leg-item">⭐ OC : Personnage de joueur</div>
+                    <div class="leg-item">🐾 PNJ : Personnage du Staff</div>
+                    <div class="leg-item"><em>Bordure pointillée : Guérisseur</em></div>
+                </div>
+            </div>
+        </div>
+
+        <div id="pantheon-modal" class="modal-hidden">
+            <div class="modal-content">
+                <button class="det-close">✕</button>
+                <h2 style="font-family:'Cinzel'; color:var(--gold);">Le Panthéon des Records</h2>
+                <div id="pantheon-list"></div>
+            </div>
+        </div>
+
+        <div id="updates-modal" class="modal-hidden">
+            <div class="modal-content">
+                <button class="det-close">✕</button>
+                <h2 style="font-family:'Cinzel'; color:var(--gold);">Journal des Mises à jour</h2>
+                <div id="updates-list"></div>
+            </div>
+        </div>
+
+        <div id="credits-modal" class="modal-hidden">
+            <div class="modal-content">
+                <button class="det-close">✕</button>
+                <h2 style="font-family:'Cinzel'; color:var(--gold); border-bottom:1px solid var(--gold); padding-bottom:10px;">Mur des Remerciements</h2>
+                <div id="credits-list" style="margin-top:20px;">
+                    </div>
+            <p style="margin-top:20px; font-size:0.8rem; font-style:italic; opacity:0.6; text-align:center;">
+            Inspiré de l'œuvre d'Erin Hunter.
+            </p>
+            </div>
+        </div>
+
+        <div class="filters">
+            <button class="filter-btn active" data-target="all">Tous</button>
+            <button class="filter-btn" data-target="vent">Vent</button>
+            <button class="filter-btn" data-target="tonnerre">Tonnerre</button>
+            <button class="filter-btn" data-target="ombre">Ombre</button>
+            <button class="filter-btn" data-target="riviere">Rivière</button>
+        </div>
+    
+    </header>
+
+    <main class="timeline-container">
+        <div class="time-col">
+            <div class="time-axis">
+                <div class="time-marker" style="--lune: -300;"><span>-300</span></div>
+                <div class="time-marker" style="--lune: 0;"><span>Présent</span></div>
+            </div>
+        </div>
+
+        <div class="clans-grid">
+            <div class="global-layer">
+                <div class="present-line" style="--lune: 0;"></div>
+            </div>
+
+            <section class="clan-col vent" id="col-vent">
+                <div class="clan-head"><h2>Vent</h2></div>
+                <div class="track-container" id="track-vent">
+                    <div class="track leaders" id="vent-leaders"></div>
+                    <div class="track healers" id="vent-healers"></div>
+                </div>
+            </section>
+            
+            <section class="clan-col tonnerre" id="col-tonnerre">
+                <div class="clan-head"><h2>Tonnerre</h2></div>
+                <div class="track-container" id="track-tonnerre">
+                    <div class="track leaders" id="tonnerre-leaders"></div>
+                    <div class="track healers" id="tonnerre-healers"></div>
+                </div>
+            </section>
+
+            <section class="clan-col ombre" id="col-ombre">
+                <div class="clan-head"><h2>Ombre</h2></div>
+                <div class="track-container" id="track-ombre">
+                    <div class="track leaders" id="ombre-leaders"></div>
+                    <div class="track healers" id="ombre-healers"></div>
+                </div>
+            </section>
+
+            <section class="clan-col riviere" id="col-riviere">
+                <div class="clan-head"><h2>Rivière</h2></div>
+                <div class="track-container" id="track-riviere">
+                    <div class="track leaders" id="riviere-leaders"></div>
+                    <div class="track healers" id="riviere-healers"></div>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <footer class="site-footer">
+        <div class="footer-container">
+            <div class="footer-section">
+                <h3>L'Architecte</h3>
+                <p>Développement par <strong>@.araxia.</strong></p>
+                <div class="footer-links">
+                    <a href="https://starlit-speculoos-1644ff.netlify.app/">Arbre Généalogique</a>
+                    <a href="https://discord.gg/kDDpveDPyW">Discord</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="data.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>

@@ -1,0 +1,337 @@
+:root {
+    --bg: #080f09;
+    --bg-card: #0f1a10;
+    --gold: #c9a84c;
+    --text: #d8ccb4;
+    --border: rgba(180,160,100,0.2);
+    
+    --px-moon: 12px;
+    --total-moons: 300;
+    --timeline-height: calc(var(--total-moons) * var(--px-moon));
+    
+    --c-vent: #2d8f5e;
+    --c-tonnerre: #c94040;
+    --c-ombre: #6b59c4;
+    --c-riviere: #3d88cc;
+}
+
+body { background-color: var(--bg); color: var(--text); font-family: 'DM Sans', sans-serif; margin: 0; overflow-x: hidden;}
+header { text-align: center; padding: 2rem 1rem; border-bottom: 1px solid var(--border); background: var(--bg-card); position: relative; z-index: 100;}
+h1 { font-family: 'Cinzel', serif; color: var(--gold); letter-spacing: 2px; margin: 0.5rem 0;}
+
+/* --- FILTRES --- */
+.filters { display: flex; justify-content: center; gap: 10px; margin-top: 15px; flex-wrap: wrap; }
+.filter-btn { background: transparent; border: 1px solid var(--border); color: var(--text); padding: 5px 15px; border-radius: 20px; cursor: pointer; font-family: 'DM Sans'; font-size: 0.85rem; transition: 0.3s; }
+.filter-btn:hover { border-color: var(--c, var(--gold)); color: var(--c, var(--gold)); }
+.filter-btn.active { background: var(--border); border-color: var(--gold); color: var(--gold); }
+.changelog-btn { background: rgba(201,168,76,0.1); border: 1px solid var(--gold); color: var(--gold); padding: 8px 20px; border-radius: 4px; cursor: pointer; transition: 0.3s; }
+.changelog-btn:hover { background: var(--gold); color: var(--bg); }
+
+/* --- GRID --- */
+.timeline-container { display: flex; max-width: 1500px; margin: 2rem auto; padding: 0 1rem; gap: 10px; }
+.clans-grid { display: flex; gap: 15px; flex-grow: 1; position: relative; transition: 0.3s; }
+.clan-col { position: relative; flex: 1; min-width: 200px; transition: 0.4s ease; overflow: hidden; }
+.clan-col.hidden { flex: 0; min-width: 0; opacity: 0; margin: 0; padding: 0; pointer-events: none; }
+
+.time-col { width: 60px; flex-shrink: 0; }
+.time-head { height: 60px; color: var(--gold); font-family: 'Cinzel'; font-size: 0.8rem; text-align: center; }
+.time-axis { position: relative; height: var(--timeline-height); border-right: 1px dashed var(--border); }
+.time-marker { position: absolute; top: calc((300 + var(--lune)) * var(--px-moon)); right: 10px; transform: translateY(-50%); font-size: 0.7rem; color: var(--gold); }
+
+.clan-head { height: 60px; background: var(--bg-card); border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; position: sticky; top: 10px; z-index: 20; border-radius: 4px; }
+.clan-head h2 { font-size: 0.9rem; font-family: 'Cinzel'; white-space: nowrap;}
+.vent h2 { color: var(--c-vent); } .tonnerre h2 { color: var(--c-tonnerre); } .ombre h2 { color: var(--c-ombre); } .riviere h2 { color: var(--c-riviere); }
+
+.track-container { position: relative; height: var(--timeline-height); background: rgba(255,255,255,0.01); display: flex; }
+.track { width: 50%; position: relative; border-right: 1px dashed rgba(180,160,100,0.05); }
+
+/* --- CARTES ET AVATARS --- */
+.card-wrapper { position: absolute; width: 100%; top: calc((300 + var(--start)) * var(--px-moon)); height: calc(var(--duration) * var(--px-moon)); padding: 2px; }
+.char-card { background: var(--bg-card); border: 1px solid var(--border); border-left: 3px solid var(--border); height: 100%; border-radius: 4px; padding: 4px 6px; cursor: pointer; transition: 0.2s; display: flex; align-items: center; gap: 8px; overflow: hidden; }
+.char-card:hover { border-color: var(--gold); transform: translateX(5px); z-index: 50; box-shadow: -4px 4px 10px rgba(0,0,0,0.5);}
+
+.card-avatar { width: 28px; height: 28px; border-radius: 50%; border: 1px solid var(--border); flex-shrink: 0; background: var(--bg); overflow: hidden; }
+.card-avatar img { width: 100%; height: 100%; object-fit: cover; }
+.card-content { display: flex; flex-direction: column; overflow: hidden; }
+.card-name { font-family: 'Crimson Pro', serif; font-weight: 600; font-size: 0.8rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.card-dates { font-size: 0.6rem; color: #8a8070; margin-top: 1px; }
+
+/* Bordures par clan et nuances guérisseurs */
+.vent .char-card { border-left-color: var(--c-vent); }
+.tonnerre .char-card { border-left-color: var(--c-tonnerre); }
+.ombre .char-card { border-left-color: var(--c-ombre); }
+.riviere .char-card { border-left-color: var(--c-riviere); }
+.healers .char-card { background: rgba(15, 26, 16, 0.4); border-left-width: 2px; border-style: dashed; }
+
+/* --- ÉVÉNEMENTS GLOBAUX & TOOLTIPS --- */
+.global-layer { position: absolute; top: 60px; left: 0; right: 0; height: var(--timeline-height); pointer-events: none; z-index: 5; }
+.global-zone { position: absolute; width: 100%; top: calc((300 + var(--start)) * var(--px-moon)); height: calc(var(--duration) * var(--px-moon)); background: rgba(201, 64, 64, 0.08); border-top: 1px solid rgba(201, 64, 64, 0.3); border-bottom: 1px solid rgba(201, 64, 64, 0.3); }
+.zone-label { color: #ff9999; font-size: 10px; text-transform: uppercase; padding: 5px; opacity: 0.6; }
+
+.line-event { position: absolute; width: 100%; top: calc((300 + var(--lune)) * var(--px-moon)); border-top: 1px dashed var(--gold); pointer-events: auto; cursor: help; }
+.line-label { position: absolute; right: 0; top: -16px; font-size: 10px; color: var(--gold); background: var(--bg); padding: 0 4px;}
+.line-event::after { content: attr(data-desc); position: absolute; right: 10px; bottom: 10px; background: var(--bg-card); border: 1px solid var(--gold); padding: 5px 10px; border-radius: 4px; font-size: 0.75rem; color: var(--text); opacity: 0; transition: 0.3s; pointer-events: none; white-space: nowrap;}
+.line-event:hover::after { opacity: 1; bottom: 5px; }
+
+.present-line { position: absolute; width: 100%; top: calc((300 + var(--lune)) * var(--px-moon)); border-top: 2px solid #e74c3c; box-shadow: 0 0 10px #e74c3c; opacity: 0.8;}
+.extinction-overlay { position: absolute; width: 100%; top: calc((300 + var(--start)) * var(--px-moon)); height: calc(var(--duration) * var(--px-moon)); background: repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(0,0,0,0.3) 10px, rgba(0,0,0,0.3) 20px); }
+
+/* --- MODALES --- */
+.modal-hidden { display: none; }
+.modal-visible { display: flex; position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 999; justify-content: center; align-items: center; backdrop-filter: blur(3px);}
+.modal-content { background: var(--bg-card); border: 1px solid var(--gold); padding: 2rem; border-radius: 5px; width: 90%; max-width: 550px; position: relative; color: var(--text); max-height: 80vh; overflow-y: auto;}
+.det-close { position: absolute; top: 1rem; right: 1rem; background: none; border: none; color: var(--text-dim); cursor: pointer; font-size: 1.2rem; transition: 0.2s;}
+.det-close:hover { color: #e74c3c; }
+
+/* Archives */
+.log-entry { margin-bottom: 1.5rem; padding-bottom: 1rem; border-bottom: 0.5px solid var(--border); }
+.log-date { font-family: 'Cinzel', serif; color: var(--gold); font-size: 0.85rem; margin-bottom: 0.4rem; }
+.log-info { font-size: 0.95rem; line-height: 1.5; font-family: 'Crimson Pro', serif; }
+
+/* Contenu Modale Personnage (Designé avec l'image) */
+.modal-header { display: flex; align-items: center; gap: 15px; margin-bottom: 1rem; border-bottom: 1px solid var(--border); padding-bottom: 1rem;}
+.modal-img { width: 80px; height: 80px; border-radius: 50%; border: 2px solid var(--gold); object-fit: cover;}
+
+.site-footer {
+    margin-top: 5rem;
+    background: var(--bg-card);
+    border-top: 1px solid var(--gold);
+    padding: 3rem 1rem 1rem 1rem;
+    color: var(--text);
+}
+
+.footer-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 2rem;
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+.footer-section h3 {
+    font-family: 'Cinzel', serif;
+    color: var(--gold);
+    font-size: 1.1rem;
+    margin-bottom: 1rem;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 0.5rem;
+}
+
+.footer-links a {
+    display: inline-block;
+    color: var(--text-dim);
+    text-decoration: none;
+    margin-right: 15px;
+    font-size: 0.9rem;
+    transition: 0.3s;
+}
+
+.footer-links a:hover { color: var(--gold); }
+
+.credits-list { list-style: none; padding: 0; font-size: 0.9rem; }
+
+.players-scroll {
+    background: rgba(0,0,0,0.2);
+    padding: 10px;
+    border-radius: 4px;
+    color: var(--gold);
+    font-family: 'Crimson Pro', serif;
+    font-style: italic;
+}
+
+.footer-bottom {
+    text-align: center;
+    margin-top: 3rem;
+    font-size: 0.75rem;
+    color: var(--text-dim);
+    border-top: 1px solid var(--border);
+    padding-top: 1rem;
+}
+
+/* --- RECHERCHE --- */
+.search-container { margin: 15px auto; max-width: 400px; }
+#cat-search {
+    width: 100%; padding: 10px 15px; border-radius: 20px;
+    background: var(--bg); border: 1px solid var(--gold);
+    color: var(--text); font-family: 'DM Sans';
+}
+
+/* --- STATUTS --- */
+.retired .char-card { opacity: 0.8; border-style: dotted; }
+.status-badge {
+    font-size: 0.55rem; background: var(--gold); color: var(--bg);
+    padding: 1px 4px; border-radius: 3px; margin-left: 5px; vertical-align: middle;
+}
+
+/* --- CATÉGORIES ÉVÉNEMENTS --- */
+.type-pill {
+    font-size: 0.6rem; text-transform: uppercase; padding: 2px 6px;
+    border-radius: 10px; margin-left: 10px; border: 1px solid currentColor;
+}
+.event-type-war { color: #e74c3c; border-left: 3px solid #e74c3c; padding-left: 10px; }
+.event-type-nature { color: #2ecc71; border-left: 3px solid #2ecc71; padding-left: 10px; }
+.event-type-prophecy { color: var(--gold); border-left: 3px solid var(--gold); padding-left: 10px; }
+
+/* --- FOOTER --- */
+.site-footer {
+    background: var(--bg-card); padding: 3rem; margin-top: 5rem;
+    border-top: 1px solid var(--gold); text-align: center;
+}
+.footer-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; max-width: 1000px; margin: 0 auto; }
+.footer-box h3 { font-family: 'Cinzel'; color: var(--gold); margin-bottom: 15px; }
+
+/* --- ANIMATION POUR LES MENEURS ACTIFS --- */
+.is-active {
+    box-shadow: 0 0 10px rgba(201, 168, 76, 0.3);
+    animation: glow 3s infinite alternate;
+}
+
+@keyframes glow {
+    from { border-color: var(--border); }
+    to { border-color: var(--gold); box-shadow: 0 0 15px var(--gold); }
+}
+
+/* style.css */
+
+/* Badge pour les OC */
+.char-card small {
+    display: inline-block;
+    padding: 1px 5px;
+    border-radius: 4px;
+    font-size: 0.55rem;
+    margin-left: 5px;
+    text-transform: uppercase;
+    font-weight: bold;
+}
+
+/* Style spécifique OC */
+.OC-badge { background: var(--gold); color: var(--bg); }
+
+/* Style spécifique PNJ */
+.PNJ-badge { background: rgba(255,255,255,0.1); color: var(--text-dim); }
+
+/* Animation pour les personnages joués (OC) actifs */
+.is-active.OC-type {
+    box-shadow: 0 0 15px rgba(201, 168, 76, 0.4);
+    border-style: double; /* Donne un aspect plus noble */
+}
+
+/* --- STYLE MODALE PERSONNAGE --- */
+.modal-header {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 15px;
+}
+
+.modal-img {
+    width: 90px;
+    height: 90px;
+    border-radius: 50%;
+    border: 3px solid var(--gold);
+    object-fit: cover;
+}
+
+/* --- FOOTER CRÉDITS --- */
+.site-footer {
+    background: var(--bg2);
+    border-top: 1px solid var(--gold);
+    padding: 40px 20px;
+    margin-top: 60px;
+    text-align: center;
+}
+
+.footer-content {
+    display: flex;
+    justify-content: space-around;
+    flex-wrap: wrap;
+    gap: 30px;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.footer-section h4 {
+    font-family: 'Cinzel', serif;
+    color: var(--gold);
+    margin-bottom: 10px;
+}
+
+/* style.css */
+
+.header-tools {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+}
+
+.tool-btn {
+    background: rgba(201, 168, 76, 0.05);
+    border: 1px solid var(--gold);
+    color: var(--gold);
+    padding: 6px 15px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.8rem;
+    transition: 0.3s;
+}
+
+.tool-btn:hover { background: var(--gold); color: var(--bg); }
+
+/* Contenu Modales */
+.record-item {
+    background: rgba(255,255,255,0.03);
+    padding: 15px;
+    border-radius: 5px;
+    margin-bottom: 10px;
+    border-left: 3px solid var(--gold);
+}
+
+.record-item h4 { margin: 0 0 5px 0; color: var(--gold); font-family: 'Cinzel'; }
+
+.upd-item {
+    font-size: 0.9rem;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--border);
+}
+
+/* Éléments de Légende */
+.legend-grid span {
+    display: inline-block;
+    width: 20px;
+    height: 10px;
+    margin-right: 10px;
+    border-radius: 2px;
+}
+.box-vent { background: var(--c-vent); }
+.box-tonnerre { background: var(--c-tonnerre); }
+.box-ombre { background: var(--c-ombre); }
+.box-riviere { background: var(--c-riviere); }
+
+/* style.css */
+
+.credit-item {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 15px;
+    padding: 10px;
+    background: rgba(255,255,255,0.02);
+    border-radius: 4px;
+}
+
+.credit-role {
+    font-family: 'Cinzel';
+    color: var(--gold);
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.credit-names {
+    font-family: 'DM Sans';
+    color: var(--text);
+    font-size: 1rem;
+    margin-top: 5px;
+}
